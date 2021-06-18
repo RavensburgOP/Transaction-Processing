@@ -1,10 +1,4 @@
-use std::{
-    collections::HashMap,
-    env,
-    error::Error,
-    fs::{self, File},
-    io::{self},
-};
+use std::{collections::HashMap, env, fs, io};
 
 use csv::Trim;
 use serde::{
@@ -93,10 +87,6 @@ enum Dispute {
 
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 struct Transaction {
-    org_ord: usize,
-    client: u16,
-    tx: u32,
-    // Withdrawals are negative, deposits positive
     amount: u64,
     dispute: Dispute,
 }
@@ -156,9 +146,6 @@ impl Account {
             self.transactions.insert(
                 transaction.tx,
                 Transaction {
-                    org_ord: self.transactions.len(),
-                    client: transaction.client,
-                    tx: transaction.tx,
                     amount: transaction.amount,
                     dispute: Dispute::None,
                 },
