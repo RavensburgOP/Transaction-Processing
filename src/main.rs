@@ -1,8 +1,8 @@
-use std::{collections::HashMap, env, fs, io};
+use std::{collections::HashMap, env, io};
 
 use processing::{Account, TransactionRow};
 
-use crate::serializing::{read_csv, write_csv};
+use crate::serializing::{read_csv, read_file, write_csv};
 
 mod processing;
 mod serializing;
@@ -31,11 +31,8 @@ fn main() {
         None => panic!("expected 1 argument, but got none"),
         Some(file_path) => file_path,
     };
-    let file_content = match fs::read_to_string(file_path) {
-        Ok(content) => content,
-        Err(e) => panic!("failed to open file {}", e),
-    };
-    let input = read_csv(file_content.as_bytes()).filter_map(|r| r.ok());
+    let file_content = read_file(file_path);
+    let input = read_csv(file_content).filter_map(|r| r.ok());
     let accounts = process_transactions(input);
     let mut writer = io::stdout();
     let output = accounts.iter().map(|a| a.into());

@@ -1,15 +1,26 @@
-use std::io;
+use std::{fs::File, io, path::Path};
 
 use csv::{DeserializeRecordsIntoIter, Trim};
 use serde::{de, Deserialize, Deserializer, Serializer};
 
 use crate::processing::{OutputAccount, TransactionRow};
 
-pub(crate) fn read_csv(input: &[u8]) -> DeserializeRecordsIntoIter<&[u8], TransactionRow> {
+pub(crate) fn read_file<P>(input_file: P) -> std::io::BufReader<std::fs::File>
+where
+    P: AsRef<Path>,
+{
+    let file = File::open(input_file).unwrap_or_else(|_| panic!("Input file not found"));
+    io::BufReader::new(file)
+}
+
+pub(crate) fn read_csv<I>(file_iter: I) -> DeserializeRecordsIntoIter<I, TransactionRow>
+where
+    I: io::Read,
+{
     csv::ReaderBuilder::new()
         .trim(Trim::All)
         .delimiter(b',')
-        .from_reader(input)
+        .from_reader(file_iter)
         .into_deserialize::<TransactionRow>()
 }
 
